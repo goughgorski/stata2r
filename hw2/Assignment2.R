@@ -42,14 +42,17 @@ assignment2 = function(n=5000, numlist=c(20, 100, 500)) {
 
   # plots
   par(mfrow=c(1,2))
-  plot(numlist, mu_est_vec, type = "b",
+  plot(x=numlist,
+       y=mu_est_vec,
+       type = "b",
        main=expression(paste(mu[estimate], " by sample size ")),
        xlab="sample size",
        ylab=expression(mu[estimate]))
   # add true value
   abline(h=mu, col="red")
 
-  plot(numlist, rho_est_vec,
+  plot(x=numlist,
+       y=rho_est_vec,
        type="b",
        main=expression(paste(rho[estimate], " by sample size ")),
        xlab="sample size",
