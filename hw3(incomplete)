@@ -1,0 +1,48 @@
+#import data
+strength<-read.csv("strength.csv", header=T)
+
+##1
+#plot y~time, indexed by id
+xyplot(y~time, groups=id, type="o", data=strength)
+
+##2
+#run linear regression for each individual, create predicted yhat
+for (i in 1:57){
+  model[i]<-lm(y~time, data=strength[strength$id==i,])}
+for (i in 1:399){strength$yhat[i]<-model[[strength$id[i]]][1] + 
+  model[[strength$id[i]]][2]*strength$time[i]
+}
+#plot yhat~time, indexed by id
+xyplot(yhat~time, groups=id, type="o", data=strength)
+
+##3
+#three plots of yhat~time, indexed by id, separated by tx
+xyplot(yhat~time|tx, groups=id, type="o", data=strength)
+
+##5
+slope<-data.frame(1:57, 0, 0)
+for(i in 1:57){
+  slope[i, 2]<-model[[i]][2]
+  slope[i, 3]<-max(strength$tx[strength$id==i])
+}
+#F test to compare the two variances (for homogeneity)
+var.test(slope$X0[slope$X0.1==2], slope$X0[slope$X0.1==3])
+#two sample t test
+t.test(slope$X0[slope$X0.1==2], slope$X0[slope$X0.1==3], var.equal=T, paired=F)
+
+##6
+#simple cross-sectional model of y~tx
+xmodel<-lm(y~tx, data=strength[strength$tx!=1,])
+summary(xmodel)
+#robust SEs
+library(sandwich)
+library(lmtest)
+coeftest(xmodel, vcov = vcovHC(xmodel, "HC1"))
+library(MASS)
+summary(rlm(y~tx, data=strength[strength$tx!=1,]))
+#####still need to add longitudinal term
+
+#additional tests
+plm(y~time, index="id", data=strength[strength$tx==1,])
+plm(y~time, index="id", data=strength[strength$tx==2,])
+plm(y~time, index="id", data=strength[strength$tx==3,])
